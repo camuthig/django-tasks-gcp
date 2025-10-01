@@ -2,8 +2,11 @@ import json
 from datetime import timedelta, datetime, UTC
 
 from django.core.exceptions import ImproperlyConfigured
+from django.db import transaction
 from django.tasks import TaskResult, TaskResultStatus, Task
 from django.tasks.backends.base import BaseTaskBackend
+from django.tasks.signals import task_enqueued
+from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.module_loading import import_string
 from google import auth
@@ -72,6 +75,9 @@ class CloudTasksBackend(BaseTaskBackend):
     def get_task_path(self, queue_name: str, task_id: str) -> str:
         return self.get_client().task_path(self.get_project_id(), self.get_location(), queue_name, task_id)
 
+    def get_enqueue_on_commit(self, task: Task):
+        return self.options.get("ENQUEUE_ON_COMMIT", False)
+
     def enqueue(self, task: Task, args, kwargs):
         self.validate_task(task)
 
@@ -107,17 +113,29 @@ class CloudTasksBackend(BaseTaskBackend):
             "name": self.get_task_path(task.queue_name, task_result.id),
         }
 
-        if task.run_after:
-            run_after = task.run_after
-            if isinstance(task.run_after, timedelta):
-                run_after = datetime.now(tz=UTC) + task.run_after
+        def _enqueue():
+            nonlocal cloud_task
 
-            cloud_task["schedule_time"] = run_after
+            if task.run_after:
+                run_after = task.run_after
+                if isinstance(task.run_after, timedelta):
+                    run_after = timezone.now() + task.run_after
 
+                cloud_task["schedule_time"] = run_after
 
-        response = self.client.create_task(request={
-            "parent": self.get_parent_path(task.queue_name),
-            "task": cloud_task,
-        })
+            self.client.create_task(
+                request={
+                    "parent": self.get_parent_path(task.queue_name),
+                    "task": cloud_task,
+                }
+            )
+
+            object.__setattr__(task_result, "enqueued_at", timezone.now())
+            task_enqueued.send(type(self), task_result=task_result)
+
+        if self.get_enqueue_on_commit(task):
+            transaction.on_commit(_enqueue)
+        else:
+            _enqueue()
 
         return task_result
