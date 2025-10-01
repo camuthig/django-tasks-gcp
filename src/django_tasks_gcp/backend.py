@@ -16,6 +16,16 @@ from google.cloud.tasks_v2 import CloudTasksClient, HttpMethod
 class CloudTasksBackend(BaseTaskBackend):
     supports_defer = True
 
+    # Cloud Tasks default results APIs are not ideal for most uses. For example, once a task is complete, requesting the
+    # status of the task will return a 404, rather than a success message. This means there is really no way to know if
+    # it finished successfully, failed, or didn't really enqueue properly.
+    # Supporting results is outside the scope of this backend, and can be built as an extension using a Django Model
+    # or key-value store.
+    supports_get_result = False
+
+    # Google Cloud Tasks does not support priority, so this backend does not support priority.
+    supports_priority = False
+
     def __init__(self, alias, params):
         super().__init__(alias, params)
 
