@@ -5,10 +5,12 @@ from django.http import HttpRequest
 from google.auth.transport import requests
 from google.oauth2 import id_token
 
+
 class ViewAuth(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def authenticate(self, request: HttpRequest) -> Any | None:
         pass
+
 
 class OIDCTokenAuth(ViewAuth):
     def __init__(self, service_account_email: str | None):
@@ -28,5 +30,5 @@ class OIDCTokenAuth(ViewAuth):
                 return None
 
             return idinfo
-        except BaseException as e:
+        except BaseException:
             return None

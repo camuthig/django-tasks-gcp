@@ -2,11 +2,18 @@ import json
 from typing import TypedDict
 
 from django.contrib.auth.models import AnonymousUser
-from django.core.exceptions import SuspiciousOperation, ImproperlyConfigured
-from django.http import JsonResponse, HttpRequest
-from django.tasks import Task, TaskResult, TaskContext, TaskResultStatus, task_backends
+from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import SuspiciousOperation
+from django.http import HttpRequest
+from django.http import JsonResponse
+from django.tasks import Task
+from django.tasks import TaskContext
+from django.tasks import TaskResult
+from django.tasks import TaskResultStatus
+from django.tasks import task_backends
 from django.tasks.base import TaskError
-from django.tasks.signals import task_started, task_finished
+from django.tasks.signals import task_finished
+from django.tasks.signals import task_started
 from django.utils import timezone
 from django.utils.module_loading import import_string
 from django.views import View
@@ -14,7 +21,8 @@ from django.views import View
 from django_tasks_gcp.authn import ViewAuth
 from django_tasks_gcp.backend import CloudTasksBackend
 from django_tasks_gcp.results import CloudTaskResult
-from django_tasks_gcp.utils import get_module_path, get_exception_traceback
+from django_tasks_gcp.utils import get_exception_traceback
+from django_tasks_gcp.utils import get_module_path
 
 
 class Input(TypedDict):
@@ -129,7 +137,7 @@ class TaskView(View):
 
     def get_task_result(self, request: HttpRequest, data: Input, task: Task):
         task_id = request.headers.get("X-Cloudtasks-Taskname")
-        retry_count = int(request.headers.get("X-CloudTasks-TaskRetryCount", 0)) # 0 for the first attempt
+        retry_count = int(request.headers.get("X-CloudTasks-TaskRetryCount", 0))  # 0 for the first attempt
 
         return CloudTaskResult(
             task=task,

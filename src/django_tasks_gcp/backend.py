@@ -1,16 +1,19 @@
 import json
-from datetime import timedelta, datetime, UTC
+from datetime import timedelta
 
 from django.core.exceptions import ImproperlyConfigured
 from django.db import transaction
-from django.tasks import TaskResult, TaskResultStatus, Task
+from django.tasks import Task
+from django.tasks import TaskResult
+from django.tasks import TaskResultStatus
 from django.tasks.backends.base import BaseTaskBackend
 from django.tasks.signals import task_enqueued
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.module_loading import import_string
 from google import auth
-from google.cloud.tasks_v2 import CloudTasksClient, HttpMethod
+from google.cloud.tasks_v2 import CloudTasksClient
+from google.cloud.tasks_v2 import HttpMethod
 
 
 class CloudTasksBackend(BaseTaskBackend):
@@ -59,9 +62,7 @@ class CloudTasksBackend(BaseTaskBackend):
         if configured_credentials:
             self._credentials = configured_credentials
         else:
-            self._credentials, _ = auth.default(
-                scopes=["https://www.googleapis.com/auth/cloud-platform"]
-            )
+            self._credentials, _ = auth.default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
 
         return self._credentials
 
@@ -116,7 +117,7 @@ class CloudTasksBackend(BaseTaskBackend):
         cloud_task = {
             "http_request": {
                 "http_method": HttpMethod.POST,
-                "url": self.get_default_target(), # TODO Require a safe fallback here
+                "url": self.get_default_target(),  # TODO Require a safe fallback here
                 "headers": {"Content-type": "application/json"},
                 "body": json.dumps(task_data).encode(),
             },
