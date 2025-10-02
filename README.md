@@ -20,7 +20,7 @@ Note: This backend follows the evolving Django Tasks feature in Django 6.x and m
 Using uv:
 
 ```bash
-uv add django-tasks-gcp
+uv add git+https://github.com/camuthig/django-tasks-gcp
 ```
 
 ## Django Configuration
