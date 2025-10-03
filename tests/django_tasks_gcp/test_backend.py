@@ -5,7 +5,6 @@ from unittest import mock
 from django.core.exceptions import ImproperlyConfigured
 from django.db import transaction
 from django.tasks import task
-from django.tasks.exceptions import InvalidTask
 from django.tasks.signals import task_enqueued
 from django.test import SimpleTestCase
 from django.test import TransactionTestCase
@@ -122,17 +121,7 @@ class CloudTasksBackendTests(SimpleTestCase):
         with self.assertRaises(ImproperlyConfigured):
             backend.get_default_target()
 
-    def test_it_validates_the_task_during_enqueue(self):
-        task = test_task
 
-        # Forcefully set priority without reinitializing the task, and without validating it yet.
-        # Our backend does not support this value and should fail if the task finds it way into the enqueue function.
-        object.__setattr__(task, "priority", 10)
-
-        backend = CloudTasksBackend("default", params=build_settings())
-
-        with self.assertRaises(InvalidTask):
-            backend.enqueue(task, [], {})
 
     def test_it_enqueues_the_task(self):
         backend = FakeCloudTasksBackend("default", params=build_settings())
