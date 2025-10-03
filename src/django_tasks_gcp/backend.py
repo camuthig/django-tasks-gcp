@@ -117,7 +117,7 @@ class CloudTasksBackend(BaseTaskBackend):
         cloud_task = {
             "http_request": {
                 "http_method": HttpMethod.POST,
-                "url": self.get_default_target(),  # TODO Require a safe fallback here
+                "url": self.get_default_target(),
                 "headers": {"Content-type": "application/json"},
                 "body": json.dumps(task_data).encode(),
             },

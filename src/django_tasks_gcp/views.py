@@ -128,12 +128,15 @@ class TaskView(View):
         return Input(**data)
 
     def get_task(self, data: Input) -> Task:
-        task = import_string(data["task_path"])
+        try:
+            task = import_string(data["task_path"])
 
-        if not isinstance(task, Task):
-            raise SuspiciousOperation(f"{data['task_path']} is not a valid task.")
+            if not isinstance(task, Task):
+                raise SuspiciousOperation(f"{data['task_path']} is not a valid task.")
 
-        return task
+            return task
+        except ImportError:
+            raise SuspiciousOperation(f"Task {data['task_path']} does not exist.")
 
     def get_task_result(self, request: HttpRequest, data: Input, task: Task):
         task_id = request.headers.get("X-Cloudtasks-Taskname")

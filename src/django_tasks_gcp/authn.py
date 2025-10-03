@@ -21,7 +21,11 @@ class OIDCTokenAuth(ViewAuth):
         if not token:
             return None
 
-        token = token.split(" ")[1]
+        token = token.split(" ")
+        if len(token) != 2 or token[0] != "Bearer":
+            return None
+
+        token = token[1]
 
         try:
             idinfo = id_token.verify_oauth2_token(token, requests.Request())
