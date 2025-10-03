@@ -1,0 +1,42 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
+    env:
+      DJANGO_SPEC: ">=6.0a1,<6.1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up uv with Python
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: false
+
+      - name: Show versions
+        run: |
+          uv --version
+          python --version
+
+      - name: Install project deps
+        run: uv sync --all-extras --dev
+
+      # Ensure Django 6.0.x is used in the matrix
+      - name: Pin Django to 6.0
+        run: uv pip install "django${{ env.DJANGO_SPEC }}"
+
+      - name: Run tests
+        run: uv run manage.py test
