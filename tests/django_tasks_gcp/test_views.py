@@ -2,13 +2,17 @@ from __future__ import annotations
 
 import json
 from contextlib import contextmanager
-from unittest import mock
 
-from django.core.exceptions import ImproperlyConfigured, SuspiciousOperation
+from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import SuspiciousOperation
 from django.http import HttpRequest
-from django.tasks import task, TaskResultStatus
-from django.tasks.signals import task_enqueued, task_finished, task_started
-from django.test import RequestFactory, SimpleTestCase, override_settings
+from django.tasks import TaskResultStatus
+from django.tasks import task
+from django.tasks.signals import task_finished
+from django.tasks.signals import task_started
+from django.test import RequestFactory
+from django.test import SimpleTestCase
+from django.test import override_settings
 from django.utils.module_loading import import_string
 
 from django_tasks_gcp.authn import ViewAuth
@@ -37,16 +41,20 @@ class DummyBackend(CloudTasksBackend):
     def enqueue(self, task, args, kwargs):
         return
 
+
 @task
 def test_task():
     return True
+
 
 @task
 def failing_task():
     raise ValueError("boom")
 
+
 def not_a_task():
     pass
+
 
 @contextmanager
 def capture_signal(signals: list):
@@ -64,20 +72,22 @@ def capture_signal(signals: list):
             signal.disconnect(_receiver)
 
 
-@override_settings(TASKS={
-    "default": {
-        "BACKEND": "tests.django_tasks_gcp.test_views.DummyBackend",
-        "QUEUES": [],
-        "OPTIONS": {},
-    },
-    "failing_auth": {
-        "BACKEND": "tests.django_tasks_gcp.test_views.DummyBackend",
-        "QUEUES": [],
-        "OPTIONS": {
-            "VIEW_AUTHN": "tests.django_tasks_gcp.test_views.FailingViewAuth",
+@override_settings(
+    TASKS={
+        "default": {
+            "BACKEND": "tests.django_tasks_gcp.test_views.DummyBackend",
+            "QUEUES": [],
+            "OPTIONS": {},
         },
-    },
-})
+        "failing_auth": {
+            "BACKEND": "tests.django_tasks_gcp.test_views.DummyBackend",
+            "QUEUES": [],
+            "OPTIONS": {
+                "VIEW_AUTHN": "tests.django_tasks_gcp.test_views.FailingViewAuth",
+            },
+        },
+    }
+)
 class TaskViewTests(SimpleTestCase):
     def setUp(self):
         super().setUp()
@@ -157,9 +167,7 @@ class TaskViewTests(SimpleTestCase):
             "/",
             data=json.dumps(data).encode(),
             content_type="application/json",
-            headers={
-                "X-CloudTasks-TaskName": "test-task-id"
-            },
+            headers={"X-CloudTasks-TaskName": "test-task-id"},
         )
 
         view = TaskView()
@@ -182,4 +190,3 @@ class TaskViewTests(SimpleTestCase):
             self.assertEqual(finished_results.return_value, True)
             self.assertIsNotNone(finished_results.finished_at)
             self.assertIsNotNone(finished_results.started_at)
-

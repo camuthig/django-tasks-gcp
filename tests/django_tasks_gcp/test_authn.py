@@ -1,6 +1,7 @@
 from unittest import mock
 
-from django.test import RequestFactory, SimpleTestCase
+from django.test import RequestFactory
+from django.test import SimpleTestCase
 
 from django_tasks_gcp.authn import OIDCTokenAuth
 
