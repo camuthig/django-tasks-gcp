@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from contextlib import contextmanager
 
 from django.core.exceptions import ImproperlyConfigured
 from django.core.exceptions import SuspiciousOperation
@@ -19,6 +18,7 @@ from django_tasks_gcp.authn import ViewAuth
 from django_tasks_gcp.backend import CloudTasksBackend
 from django_tasks_gcp.results import CloudTaskResult
 from django_tasks_gcp.views import TaskView
+from tests.django_tasks_gcp.utils import capture_signals
 
 
 class DummyViewAuth(ViewAuth):
@@ -54,22 +54,6 @@ def failing_task():
 
 def not_a_task():
     pass
-
-
-@contextmanager
-def capture_signal(signals: list):
-    calls = []
-
-    def _receiver(*args, **kwargs):
-        calls.append((args, kwargs))
-
-    for signal in signals:
-        signal.connect(_receiver)
-    try:
-        yield calls
-    finally:
-        for signal in signals:
-            signal.disconnect(_receiver)
 
 
 @override_settings(
@@ -172,7 +156,7 @@ class TaskViewTests(SimpleTestCase):
 
         view = TaskView()
 
-        with capture_signal([task_started, task_finished]) as signals:
+        with capture_signals(task_started, task_finished) as signals:
             view.post(request)
 
             self.assertEqual(len(signals), 2)

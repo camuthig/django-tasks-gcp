@@ -49,9 +49,15 @@ class CloudTasksBackend(BaseTaskBackend):
         return authn_class(**self.options.get("VIEW_AUTHN_PARAMS"))
 
     def get_project_id(self):
+        if not self.options.get("PROJECT_ID"):
+            raise ImproperlyConfigured("The project ID must be specified.")
+
         return self.options.get("PROJECT_ID")
 
     def get_location(self):
+        if not self.options.get("LOCATION"):
+            raise ImproperlyConfigured("The location must be specified.")
+
         return self.options.get("LOCATION")
 
     def get_credentials(self):
@@ -63,6 +69,9 @@ class CloudTasksBackend(BaseTaskBackend):
             self._credentials = configured_credentials
         else:
             self._credentials, _ = auth.default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
+
+        if self._credentials is None:
+            raise ImproperlyConfigured("The credentials must be specified or configured via the machine.")
 
         return self._credentials
 
@@ -134,7 +143,7 @@ class CloudTasksBackend(BaseTaskBackend):
 
                 cloud_task["schedule_time"] = run_after
 
-            self.client.create_task(
+            self.get_client().create_task(
                 request={
                     "parent": self.get_parent_path(task.queue_name),
                     "task": cloud_task,
