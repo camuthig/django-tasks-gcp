@@ -33,6 +33,11 @@ jobs:
           uv --version
           python --version
 
+      - name: Create fake dev version
+        run: |
+          version=$(uv version --short) &&
+          uv version $version.dev.$(date +%s)
+
       # Build the sdist and wheel into ./dist using uv
       - name: Build distribution
         run: uv build
