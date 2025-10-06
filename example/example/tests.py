@@ -1,12 +1,12 @@
 from datetime import timedelta
 
-from django.test import TestCase
+from django.test import TransactionTestCase
 from django.utils import timezone
 
 from example.tasks import do_task
 
 
-class TriggerTaskTestCase(TestCase):
+class TriggerTaskTestCase(TransactionTestCase):
     def test_task(self):
         """
         A simple test case to trigger our task.
