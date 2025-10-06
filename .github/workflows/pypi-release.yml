@@ -59,7 +59,7 @@ jobs:
           path: dist
 
       # Upload to PyPI using OIDC (Trusted Publishing)
-      - name: Publish to TestPyPI
+      - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           attestations: true
