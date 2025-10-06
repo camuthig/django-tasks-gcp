@@ -35,7 +35,7 @@ jobs:
       - name: Create fake dev version
         run: |
           version=$(uv version --short) &&
-          uv version $version.dev.$(date +%s)
+          uv version $version$(date +%s)
 
       # Build the sdist and wheel into ./dist using uv
       - name: Build distribution
