@@ -61,7 +61,7 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: dist-artifacts
+          name: python-package-distributions
           path: dist
 
       # Upload to TestPyPI using OIDC (Trusted Publishing)
