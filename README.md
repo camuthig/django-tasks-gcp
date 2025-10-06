@@ -7,6 +7,9 @@ This package provides:
 - A Django Tasks backend that enqueues tasks to Google Cloud Tasks.
 - A Django view to receive HTTP callbacks from Cloud Tasks and execute work securely.
 
+This package has not yet been tested as part of a productionalized system. Please use it with caution and report any
+issues you encounter.
+
 Note: This backend follows the evolving Django Tasks feature in Django 6.x and may change as the upstream feature evolves.
 
 ## Requirements
