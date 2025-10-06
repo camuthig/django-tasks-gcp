@@ -1,14 +1,9 @@
-name: Publish to TestPyPI
+name: Publish to PyPI
 
 on:
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: "Tag (e.g. v1.2.3). If empty, uses current version metadata."
-        required: false
   push:
-    branches:
-      - main
+    tags:
+      - '*'
 
 permissions:
   contents: read
@@ -32,11 +27,6 @@ jobs:
           uv --version
           python --version
 
-      - name: Create fake dev version
-        run: |
-          version=$(uv version --short) &&
-          uv version $version.dev.$(date +%s)
-
       # Build the sdist and wheel into ./dist using uv
       - name: Build distribution
         run: uv build
@@ -53,7 +43,7 @@ jobs:
 
   publish:
     needs: build
-    environment: testpypi
+    environment: pypi
 
     permissions:
       id-token: write
@@ -68,10 +58,8 @@ jobs:
           name: python-package-distributions
           path: dist
 
-      # Upload to TestPyPI using OIDC (Trusted Publishing)
+      # Upload to PyPI using OIDC (Trusted Publishing)
       - name: Publish to TestPyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          repository-url: https://test.pypi.org/legacy/
           attestations: true
-          skip-existing: true
