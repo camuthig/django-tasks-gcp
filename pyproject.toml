@@ -1,6 +1,6 @@
 [project]
 name = "django-tasks-gcp"
-version = "0.1.0"
+version = "0.2.0.dev0"
 description = "A backend for Django’s built-in Tasks framework powered by Google Cloud Tasks."
 readme = "README.md"
 authors = [
