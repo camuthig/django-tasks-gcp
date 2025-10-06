@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "A backend for Django’s built-in Tasks framework powered by Google Cloud Tasks."
 readme = "README.md"
 authors = [
-    { name = "Chris Muthig", email = "camuthig@gmail.com" }
+    { name = "Chris Muthig", email = "chris@camuthig.dev" }
 ]
 license = "MIT"
 license-files = ["LICENSE"]
